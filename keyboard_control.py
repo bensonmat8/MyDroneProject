@@ -1,3 +1,4 @@
+import cv2
 from djitellopy import tello
 import keypress_module as kp
 from time import sleep
@@ -5,6 +6,7 @@ from time import sleep
 kp.init()
 me = tello.Tello()
 me.connect()
+me.streamon()
 
 print(me.get_battery())
 
@@ -26,10 +28,15 @@ def get_keyboard_input():
     if kp.get_key('q'): me.land()
     if kp.get_key('e'): me.takeoff()
 
+    if kp.get_key('b'): print(f'Battery: {me.get_battery()}')
+
     return lr, fb, ud, yv
 
 
 while True:
     lr, fb, ud, yv  = get_keyboard_input()
     me.send_rc_control(lr, fb, ud, yv )
-    sleep(0.05)
+    img = me.get_frame_read().frame
+    img = cv2.resize(img, (360, 240))
+    cv2.imshow('Image', img)
+    cv2.waitKey(2)
